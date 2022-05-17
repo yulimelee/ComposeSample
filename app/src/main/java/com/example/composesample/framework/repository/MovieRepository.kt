@@ -14,10 +14,10 @@ import javax.inject.Inject
 @ViewModelScoped
 class MovieRepository @Inject constructor(
     private val movieApiHelper: MovieApiHelper
-): BaseApiResponse(){
-    suspend fun getDiscoverMovie(apiKey: String) : Flow<NetworkResult<TrendingResponse>> {
+) : BaseApiResponse() {
+    suspend fun getDiscoverMovie(apiKey: String, page: Int): Flow<NetworkResult<TrendingResponse>> {
         return flow {
-            emit(safeApiCall { movieApiHelper.getDiscoverMovies(apiKey) })
+            emit(safeApiCall { movieApiHelper.getDiscoverMovies(apiKey, page) })
         }.flowOn(Dispatchers.IO)
     }
 }

@@ -4,13 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -21,14 +19,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.example.composesample.BASE_API_URL
 import com.example.composesample.BASE_THUMBNAIL_URL
 import com.example.composesample.data.Movie
 import com.example.composesample.data.NavigationItem
 import com.example.composesample.ui.view.common.BottomNavBar
 import com.example.composesample.ui.view.common.CustomAppBar
 import com.example.composesample.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.flow.Flow
 
 
 @Composable
@@ -51,7 +52,7 @@ fun MainHomeScreen(viewModel: MainViewModel) {
 fun Navigation(navController: NavHostController, viewModel: MainViewModel) {
     NavHost(navController, startDestination = NavigationItem.Home.route) {
         composable(NavigationItem.Home.route) {
-            HomeView(viewModel)
+            HomeView(viewModel.movies)
             viewModel.changeTopTitle(NavigationItem.Home.title)
         }
         composable(NavigationItem.Trending.route) {
@@ -64,15 +65,14 @@ fun Navigation(navController: NavHostController, viewModel: MainViewModel) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeView(viewModel: MainViewModel) {
-    val trendingList = viewModel.discoverMovieList.observeAsState()
+fun HomeView(movies: Flow<PagingData<Movie>>) {
+    val lazyMovieItems: LazyPagingItems<Movie> = movies.collectAsLazyPagingItems()
     val minSize = LocalConfiguration.current.screenWidthDp.div(2)
-
     LazyVerticalGrid(cells = GridCells.Adaptive(
         minSize.dp
     ), content = {
-        items(trendingList.value?.size ?: 0){ index ->
-            DiscoverItem(movie = trendingList.value?.get(index))
+        items(lazyMovieItems.itemCount) { index ->
+            DiscoverItem(movie = lazyMovieItems[index])
         }
     })
 }
@@ -88,7 +88,10 @@ fun DiscoverItem(movie: Movie?) {
 
     Column(Modifier.padding(20.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            AsyncImage(model = "$BASE_THUMBNAIL_URL${movie.posterPath?.replace("/", "")}", contentDescription = movie.originalTitle)
+            AsyncImage(
+                model = "$BASE_THUMBNAIL_URL${movie.posterPath?.replace("/", "")}",
+                contentDescription = movie.originalTitle
+            )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Text(text = movie.originalTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold)

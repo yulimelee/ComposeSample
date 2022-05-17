@@ -11,13 +11,12 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    val viewModel by viewModels<MainViewModel>()
+    private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MainHomeScreen(viewModel = viewModel)
         }
-        viewModel.getTrendingMovies(resources.getString(R.string.movie_api_key))
     }
 }
