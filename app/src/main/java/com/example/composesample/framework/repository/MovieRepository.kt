@@ -1,6 +1,6 @@
 package com.example.composesample.framework.repository
 
-import com.example.composesample.data.TrendingResponse
+import com.example.composesample.data.MovieResponse
 import com.example.composesample.framework.BaseApiResponse
 import com.example.composesample.framework.MovieApiHelper
 import com.example.composesample.framework.NetworkResult
@@ -15,9 +15,15 @@ import javax.inject.Inject
 class MovieRepository @Inject constructor(
     private val movieApiHelper: MovieApiHelper
 ) : BaseApiResponse() {
-    suspend fun getDiscoverMovie(apiKey: String, page: Int): Flow<NetworkResult<TrendingResponse>> {
+    suspend fun getDiscoverMovie(apiKey: String, page: Int): Flow<NetworkResult<MovieResponse>> {
         return flow {
             emit(safeApiCall { movieApiHelper.getDiscoverMovies(apiKey, page) })
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun getTrendingMovie(apiKey: String, page: Int): Flow<NetworkResult<MovieResponse>> {
+        return flow {
+            emit(safeApiCall { movieApiHelper.getTrendingMovies(apiKey, page) })
         }.flowOn(Dispatchers.IO)
     }
 }

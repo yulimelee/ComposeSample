@@ -2,6 +2,7 @@ package com.example.composesample.ui.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -31,32 +32,36 @@ import com.example.composesample.ui.view.common.CustomAppBar
 import com.example.composesample.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 
+interface OnClickItem{
+    fun onClick(data: Movie)
+}
+
 
 @Composable
-fun MainHomeScreen(viewModel: MainViewModel) {
+fun MainHomeScreen(viewModel: MainViewModel, onClickItem: OnClickItem) {
     val title = viewModel.title.observeAsState()
     val navController = rememberNavController()
 
     Scaffold(
         Modifier.background(Color.White),
-        topBar = { CustomAppBar(title = title.value ?: "") },
+        topBar = { CustomAppBar(title = title.value ?: "", false) },
         bottomBar = { BottomNavBar(navController) },
     ) {
         Box(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, it.calculateBottomPadding())) {
-            Navigation(navController, viewModel)
+            Navigation(navController, viewModel, onClickItem)
         }
     }
 }
 
 @Composable
-fun Navigation(navController: NavHostController, viewModel: MainViewModel) {
+fun Navigation(navController: NavHostController, viewModel: MainViewModel, onClickItem: OnClickItem) {
     NavHost(navController, startDestination = NavigationItem.Home.route) {
         composable(NavigationItem.Home.route) {
-            HomeView(viewModel.movies)
+            HomeView(viewModel.discoverMovies, onClickItem)
             viewModel.changeTopTitle(NavigationItem.Home.title)
         }
         composable(NavigationItem.Trending.route) {
-            TrendingView(viewModel)
+            TrendingView(viewModel.trendingMovies, onClickItem)
             viewModel.changeTopTitle(NavigationItem.Trending.title)
         }
     }
@@ -65,36 +70,48 @@ fun Navigation(navController: NavHostController, viewModel: MainViewModel) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeView(movies: Flow<PagingData<Movie>>) {
+fun HomeView(movies: Flow<PagingData<Movie>>, onClickItem: OnClickItem) {
     val lazyMovieItems: LazyPagingItems<Movie> = movies.collectAsLazyPagingItems()
     val minSize = LocalConfiguration.current.screenWidthDp.div(2)
     LazyVerticalGrid(cells = GridCells.Adaptive(
         minSize.dp
     ), content = {
         items(lazyMovieItems.itemCount) { index ->
-            DiscoverItem(movie = lazyMovieItems[index])
+            MovieItem(movie = lazyMovieItems[index], onClickItem)
+        }
+    })
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TrendingView(movies: Flow<PagingData<Movie>>, onClickItem: OnClickItem) {
+    val lazyMovieItems: LazyPagingItems<Movie> = movies.collectAsLazyPagingItems()
+    val minSize = LocalConfiguration.current.screenWidthDp.div(2)
+    LazyVerticalGrid(cells = GridCells.Adaptive(
+        minSize.dp
+    ), content = {
+        items(lazyMovieItems.itemCount) { index ->
+            MovieItem(movie = lazyMovieItems[index], onClickItem)
         }
     })
 }
 
 @Composable
-fun TrendingView(viewModel: MainViewModel) {
-
-}
-
-@Composable
-fun DiscoverItem(movie: Movie?) {
-    if (movie == null) return
-
-    Column(Modifier.padding(20.dp)) {
+fun MovieItem(movie: Movie?, onClickItem: OnClickItem) {
+    Column(
+        Modifier
+            .padding(20.dp)
+            .clickable {
+                onClickItem
+            }) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             AsyncImage(
-                model = "$BASE_THUMBNAIL_URL${movie.posterPath?.replace("/", "")}",
-                contentDescription = movie.originalTitle
+                model = "$BASE_THUMBNAIL_URL${movie?.posterPath?.replace("/", "")}",
+                contentDescription = movie?.originalTitle ?: ""
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Text(text = movie.originalTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = movie?.originalTitle ?: "", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

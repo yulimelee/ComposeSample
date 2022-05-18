@@ -2,7 +2,7 @@ package com.example.composesample.data
 
 import com.google.gson.annotations.SerializedName
 
-data class TrendingResponse(
+data class MovieResponse(
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")

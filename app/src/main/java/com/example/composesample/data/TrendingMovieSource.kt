@@ -6,10 +6,10 @@ import com.example.composesample.framework.repository.MovieRepository
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
-class MovieSource @Inject constructor(
+class TrendingMovieSource @Inject constructor(
     private val movieRepository: MovieRepository,
     private val apiKey: String = "4caa0f2c011a1a817105be229620f377"
-) : PagingSource<Int, Movie>() {
+): PagingSource<Int, Movie>() {
     override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
         return state.anchorPosition
     }
@@ -17,7 +17,7 @@ class MovieSource @Inject constructor(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
         return try {
             val nextPage = params.key ?: 1
-            val movieListResponse = movieRepository.getDiscoverMovie(apiKey, nextPage).firstOrNull()
+            val movieListResponse = movieRepository.getTrendingMovie(apiKey, nextPage).firstOrNull()
 
             LoadResult.Page(
                 data = movieListResponse?.data?.results ?: emptyList(),
