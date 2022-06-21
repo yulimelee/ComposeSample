@@ -102,7 +102,9 @@ fun MovieItem(movie: Movie?, onClickItem: OnClickItem) {
         Modifier
             .padding(20.dp)
             .clickable {
-                onClickItem
+                if (movie != null) {
+                    onClickItem.onClick(movie)
+                }
             }) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             AsyncImage(

@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
             MainHomeScreen(viewModel = viewModel, onClickItem = object : OnClickItem{
                 override fun onClick(data: Movie) {
                     startActivity(Intent(this@MainActivity, DetailActivity::class.java).apply {
-                        putExtras(bundleOf("movie" to data))
+                        putExtra("movie" , data)
                     })
                 }
             })

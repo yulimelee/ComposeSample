@@ -1,6 +1,7 @@
 package com.example.composesample.data
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class MovieResponse(
     @SerializedName("page")
@@ -11,7 +12,7 @@ data class MovieResponse(
     val totalResults: Int,
     @SerializedName("total_pages")
     val totalPages: Int
-)
+): Serializable
 
 data class Movie(
     @SerializedName("poster_path")
@@ -40,4 +41,4 @@ data class Movie(
     val video: Boolean,
     @SerializedName("vote_average")
     val voteAverage: Double
-)
+): Serializable

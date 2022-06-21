@@ -18,7 +18,7 @@ fun CustomAppBar(title: String, showBackBtn: Boolean, onClickBackBtn: () -> Unit
     TopAppBar(navigationIcon = {
         if (showBackBtn){
             IconButton(onClick = {
-                onClickBackBtn
+                onClickBackBtn.invoke()
             }) {
                 Icon(painter = painterResource(R.drawable.ic_back), contentDescription = "뒤로가기")
             }
